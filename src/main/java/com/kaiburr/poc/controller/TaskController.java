@@ -22,6 +22,15 @@ public class TaskController {
         this.taskRepository = taskRepository;
     }
 
+    @GetMapping("/test")
+    public String checkHealth(){
+        System.out.println("The server is listening");
+        return "The Server is active";
+    }
+    @GetMapping("/check")
+    public String getTasks() {
+        return "Tasks endpoint working!";
+    }
     // GET all the tasks
     @GetMapping
     public ResponseEntity<?> getTasks(@RequestParam(required = false) String id) {

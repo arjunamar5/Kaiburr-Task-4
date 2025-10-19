@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: poc-app-deployment
+  labels:
+    app: poc-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: poc-app
+  template:
+    metadata:
+      labels:
+        app: poc-app
+    spec:
+      containers:
+        - name: poc-app
+          image: arjunamar5/poc-app-task-4 # Your image name
+          ports:
+            - containerPort: 8080
+          env:
+            - name: MONGO_URI
+              value: "mongodb://mongodb-service:27017/taskdb"
