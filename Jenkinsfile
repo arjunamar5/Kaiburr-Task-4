@@ -12,7 +12,7 @@ pipeline {
     stages {
         stage('Build Jar File') {
             steps {
-                sh '''
+                bat '''
                     echo "Building application..."
                     mvn clean package -DskipTests
                 '''
@@ -21,7 +21,7 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh '''
+                bat '''
                     echo "Building Docker image..."
                     docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
                 '''
@@ -30,7 +30,7 @@ pipeline {
 
         stage('Docker Push') {
             steps {
-                sh '''
+                bat '''
                     echo "Logging in to DockerHub..."
                     echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
                     echo "Pushing Docker image..."
@@ -43,7 +43,7 @@ pipeline {
     }
     post {
         always {
-            sh 'docker logout'
+            bat 'docker logout'
         }
     }
 }
