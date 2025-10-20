@@ -3,11 +3,15 @@ package com.kaiburr.poc.controller;
 import com.kaiburr.poc.model.Task;
 import com.kaiburr.poc.model.TaskExecution;
 import com.kaiburr.poc.repository.TaskRepository;
+import com.kaiburr.poc.service.KubernetesService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -17,6 +21,12 @@ import java.util.Optional;
 public class TaskController {
 
     private final TaskRepository taskRepository;
+
+    @Autowired
+    private KubernetesService kubernetesService;
+
+    @Value("${KUBERNETES_NAMESPACE:default}")
+    private String namespace;
 
     public TaskController(TaskRepository taskRepository) {
         this.taskRepository = taskRepository;
@@ -119,6 +129,46 @@ public class TaskController {
         taskRepository.save(task); // Updating in the mongodb database(taskdb here)
         return ResponseEntity.ok(exec);
     }
+
+    @PostMapping("/{id}/executions")
+    public ResponseEntity<TaskExecution> addTaskExecutionsk8(
+            @PathVariable String id,
+            @RequestBody CommandRequest commandRequest){
+        String command = commandRequest.getCommand();
+        System.out.println("Adding TaskExecution for Task ID: " + id + " with command: " + command);
+        Optional<Task> optionalTask = taskRepository.findById(id);
+        if (optionalTask.isPresent()) {
+            Task task = optionalTask.get();
+
+            // Create Kubernetes pod to execute command
+            String executionResult = kubernetesService.createCommandPod(command, namespace);
+            Date start = Date.from(Instant.now());
+            Date end = Date.from(Instant.now());
+
+
+            TaskExecution execution = new TaskExecution();
+            execution.setStartTime(start);
+            execution.setEndTime(end); // Simulate end time
+            execution.setOutput(executionResult);
+
+            task.getTaskExecutions().add(execution);
+            taskRepository.save(task);
+            return ResponseEntity.ok(execution);
+        }
+        throw new RuntimeException("Task not found with id: " + id);
+    }
+    public static class CommandRequest {
+        private String command;
+
+        public String getCommand() {
+            return command;
+        }
+
+        public void setCommand(String command) {
+            this.command = command;
+        }
+    }
+
 }
 
 

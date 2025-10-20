@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: poc-app
-          image: arjunamar5/poc-app-task-4 # Your image name
+          image: arjunamar5/poc-app-task-5 # Your image name
           ports:
             - containerPort: 8080
           env:
