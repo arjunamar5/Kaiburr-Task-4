@@ -1,14 +1,16 @@
 pipeline {
     agent any
+
     environment {
         DOCKER_IMAGE = "arjunamar5/poc-app-task"
-        DOCKER_TAG = "${env.BUILD_NUMBER}"
-        DOCKER_USER = 'arjunamar5@gmail.com'
-        DOCKER_PASS = 'ARJUN@DOCKER'
+        DOCKER_TAG = "${BUILD_NUMBER}"
+        DOCKER_USER = "arjunamar5"
+        DOCKER_PASS = "ARJUN@DOCKER"
         PATH = "/opt/homebrew/bin:/usr/local/bin:${env.PATH}"
     }
+
     stages {
-        stage('Building jar file') {
+        stage('Build Jar File') {
             steps {
                 sh '''
                     echo "Building application..."
@@ -16,6 +18,7 @@ pipeline {
                 '''
             }
         }
+
         stage('Docker Build') {
             steps {
                 sh '''
@@ -24,15 +27,17 @@ pipeline {
                 '''
             }
         }
+
         stage('Docker Push') {
             steps {
-                    sh '''
-                        echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                        docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
-                        docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
-                        docker push ${DOCKER_IMAGE}:latest
-                    '''
-                }
+                sh '''
+                    echo "Logging in to DockerHub..."
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+                    echo "Pushing Docker image..."
+                    docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
+                    docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
+                    docker push ${DOCKER_IMAGE}:latest
+                '''
             }
         }
     }
