@@ -1,19 +1,17 @@
 pipeline {
     agent any
-
     environment {
         DOCKER_IMAGE = "arjunamar5/poc-app-task"
         DOCKER_TAG = "${BUILD_NUMBER}"
         DOCKER_USER = "arjunamar5"
         DOCKER_PASS = "ARJUN@DOCKER"
-        PATH = "/opt/homebrew/bin:/usr/local/bin:${env.PATH}"
     }
 
     stages {
         stage('Build Jar File') {
             steps {
                 bat '''
-                    echo "Building application..."
+                    echo Building application...
                     mvn clean package -DskipTests
                 '''
             }
@@ -22,8 +20,8 @@ pipeline {
         stage('Docker Build') {
             steps {
                 bat '''
-                    echo "Building Docker image..."
-                    docker build -t ${DOCKER_IMAGE}:${DOCKER_TAG} .
+                    echo Building Docker image...
+                    docker build -t %DOCKER_IMAGE%:%DOCKER_TAG% .
                 '''
             }
         }
@@ -31,19 +29,20 @@ pipeline {
         stage('Docker Push') {
             steps {
                 bat '''
-                    echo "Logging in to DockerHub..."
-                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
-                    echo "Pushing Docker image..."
-                    docker push ${DOCKER_IMAGE}:${DOCKER_TAG}
-                    docker tag ${DOCKER_IMAGE}:${DOCKER_TAG} ${DOCKER_IMAGE}:latest
-                    docker push ${DOCKER_IMAGE}:latest
+                    echo Logging into DockerHub...
+                    echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                    docker push %DOCKER_IMAGE%:%DOCKER_TAG%
+                    docker tag %DOCKER_IMAGE%:%DOCKER_TAG% %DOCKER_IMAGE%:latest
+                    docker push %DOCKER_IMAGE%:latest
                 '''
             }
         }
     }
+
     post {
         always {
             bat 'docker logout'
         }
     }
 }
+
