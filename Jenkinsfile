@@ -31,7 +31,6 @@ pipeline {
                 bat '''
                     echo Logging into DockerHub...
                     echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
-                    docker push %DOCKER_IMAGE%:%DOCKER_TAG%
                     docker tag %DOCKER_IMAGE%:%DOCKER_TAG% %DOCKER_IMAGE%:latest
                     docker push %DOCKER_IMAGE%:latest
                 '''
