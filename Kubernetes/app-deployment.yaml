@@ -17,7 +17,7 @@ spec:
       serviceAccountName: task-service-account
       containers:
         - name: poc-app
-          image: arjunamar5/poc-app-task:1 # Your image name
+          image: arjunamar5/poc-app-task:latest # Your image name
           ports:
             - containerPort: 8080
           env:
